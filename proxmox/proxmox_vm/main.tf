@@ -23,9 +23,9 @@ resource "proxmox_vm_qemu" "vm" {
   sockets = 1
   memory  = 1024
 
-  ssh_user  = "debian"
-  os_type   = "cloud-init"
-  ipconfig0 = "ip=172.17.9.5/24,gw=172.17.9.1"
+  ssh_user   = "debian"
+  os_type    = "cloud-init"
+  ipconfig0  = "ip=172.17.9.5/24,gw=172.17.9.1"
   nameserver = "1.1.1.1"
 
   sshkeys = <<EOF
@@ -33,10 +33,10 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmsnhVKDq+uiEE+74Tu/O6xNzOD8sUau23oaUaZ3o/4
 EOF
 
   connection {
-    type        = "ssh"
-    user        = self.ssh_user
-    host        = "172.17.9.5"
-    port        = 22
+    type = "ssh"
+    user = self.ssh_user
+    host = "172.17.9.5"
+    port = 22
   }
 
   provisioner "remote-exec" {
