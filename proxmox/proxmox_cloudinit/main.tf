@@ -1,18 +1,18 @@
 variable "vm_count" {
-  type = number 
+  type    = number
   default = 1
 }
 
 variable "pve_host" {
-  type = string
+  type    = string
   default = "172.17.9.2"
 }
 
 resource "null_resource" "cloud_init_config_files" {
   count = var.vm_count
   connection {
-    type     = "ssh"
-    host     = var.pve_host
+    type = "ssh"
+    host = var.pve_host
   }
 
   provisioner "file" {
@@ -23,8 +23,8 @@ resource "null_resource" "cloud_init_config_files" {
 
 /* Uses Cloud-Init options from Proxmox 5.2 */
 resource "proxmox_vm_qemu" "vm" {
-  count = var.vm_count
-  agent = 1 
+  count       = var.vm_count
+  agent       = 1
   name        = "vm1"
   desc        = "vm created by terraform"
   target_node = "pve"
@@ -48,11 +48,11 @@ resource "proxmox_vm_qemu" "vm" {
   sockets = 1
   memory  = 1024
 
+  cicustom  = "user=local:snippets/user_data_vm-${count.index}.yml"
   ssh_user  = "test"
   os_type   = "cloud-init"
   ipconfig0 = "ip=dhcp"
 
-  cicustom                = "user=local:snippets/user_data_vm-${count.index}.yml"
   /* Create the Cloud-Init drive on the "local-lvm" storage */
   # cloudinit_cdrom_storage = "local-lvm"
   sshkeys = <<EOF
@@ -60,10 +60,10 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmsnhVKDq+uiEE+74Tu/O6xNzOD8sUau23oaUaZ3o/4
 EOF
 
   connection {
-    type        = "ssh"
-    user        = self.ssh_user
-    host        = self.ssh_host
-    port        = self.ssh_port
+    type = "ssh"
+    user = self.ssh_user
+    host = self.ssh_host
+    port = self.ssh_port
   }
 
   provisioner "remote-exec" {
