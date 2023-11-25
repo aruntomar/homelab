@@ -1,6 +1,6 @@
-# homelab
+# Arun's Awesome HomeLab
 
-## The purpose of this repository is to host the codebase for my homelab project.
+The purpose of this repository is to host the codebase for my homelab project.
 
 ### Directory Structure
 
