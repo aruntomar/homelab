@@ -1,0 +1,15 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - qemu-guest-agent
+users:
+  - name: test
+    ssh_authorized_keys: 
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmsnhVKDq+uiEE+74Tu/O6xNzOD8sUau23oaUaZ3o/4 arun@arch-t14
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+runcmd:
+  - systemctl enable qemu-guest-agent --now
+  - systemclt enable systemd-resolved --now
