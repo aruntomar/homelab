@@ -41,6 +41,7 @@ function create_template() {
     #Add the user
     #qm set $1 --ciuser ${username}
     #qm set $1 --cicustom "user=snippets:snippets/cloud-init.yaml"
+    qm set $1 --cicustom "user=local:snippets/user_data_vm-0.yml"
     #Resize the disk to 8G, a reasonable minimum. You can expand it more later.
     #If the disk is already bigger than 8G, this will fail, and that is okay.
     #qm resize $1 scsi0 10G
