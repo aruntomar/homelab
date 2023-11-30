@@ -21,7 +21,6 @@ resource "null_resource" "cloud_init_config_files" {
   }
 }
 
-/* Uses Cloud-Init options from Proxmox 5.2 */
 resource "proxmox_vm_qemu" "vm" {
   count       = var.vm_count
   agent       = 1
@@ -56,8 +55,8 @@ resource "proxmox_vm_qemu" "vm" {
   /* Create the Cloud-Init drive on the "local-lvm" storage */
   # cloudinit_cdrom_storage = "local-lvm"
   sshkeys = <<EOF
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmsnhVKDq+uiEE+74Tu/O6xNzOD8sUau23oaUaZ3o/4 arun@arch-t14
-EOF
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEmsnhVKDq+uiEE+74Tu/O6xNzOD8sUau23oaUaZ3o/4 arun@arch-t14
+    EOF
 
   connection {
     type = "ssh"
