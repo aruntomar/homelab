@@ -1,27 +1,18 @@
 terraform {
   required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = "2.10.1"
-    }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = "1.14.0"
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.21.1"
-    }
     proxmox = {
       source  = "Telmate/proxmox"
       version = "2.9.14"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "2.3.2"
     }
   }
 }
 
 provider "proxmox" {
   # Configuration options
-  pm_api_url      = "https://172.17.9.2:8006/api2/json"
   pm_tls_insecure = true
 
   # uncomment to enable debugging
@@ -32,17 +23,5 @@ provider "proxmox" {
   #   _default    = "debug"
   #   _capturelog = ""
   # }
-}
-
-provider "helm" {
-  kubernetes {
-    config_path = "~/.kube/configs/pve"
-  }
-}
-provider "kubectl" {
-  config_path = "~/.kube/configs/pve"
-}
-provider "kubernetes" {
-  config_path = "~/.kube/configs/pve"
 }
 
