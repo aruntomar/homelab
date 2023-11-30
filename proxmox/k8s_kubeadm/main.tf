@@ -14,7 +14,7 @@ resource "proxmox_vm_qemu" "k8s-ctrlr" {
   vmid    = 500
   qemu_os = local.qemu_os
   disk {
-    type    = "virtio"
+    type    = "scsi"
     storage = "local-lvm"
     size    = "40G"
   }
@@ -79,7 +79,7 @@ resource "proxmox_vm_qemu" "k8s-node" {
   vmid    = 500 + count.index + 1
   qemu_os = local.qemu_os
   disk {
-    type    = "virtio"
+    type    = "scsi"
     storage = "local-lvm"
     size    = "40G"
   }
@@ -118,21 +118,48 @@ resource "proxmox_vm_qemu" "k8s-node" {
   ]
 }
 
-# join cluster
-data "external" "join_cluster" {
-  count      = local.k8s_node_count
-  program    = ["sh", "-c", "ssh -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-node[count.index].default_ipv4_address} sudo ${chomp(data.external.join_cmd.result.output)} |jq -sR '{output: .}'"]
-  depends_on = [proxmox_vm_qemu.k8s-node]
-}
-
+## join cluster
+#data "external" "join_cluster" {
+#  count      = local.k8s_node_count
+#  program    = ["sh", "-c", "ssh -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-node[count.index].default_ipv4_address} sudo ${chomp(data.external.join_cmd.result.output)} |jq -sR '{output: .}'"]
+#  depends_on = [proxmox_vm_qemu.k8s-node]
+#}
+#
 # display kubeconfig in terraform output
 data "external" "kubeconfig" {
   program    = ["sh", "-c", "ssh -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-ctrlr.default_ipv4_address} cat /home/${local.ssh_user}/.kube/config |jq -sR '{output: .}'"]
   depends_on = [proxmox_vm_qemu.k8s-node]
 }
 
-# copy kubeconfig to local machine
-data "external" "cpy_kubeconf" {
-  program    = ["sh", "-c", "scp -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-ctrlr.default_ipv4_address}:/home/${local.ssh_user}/.kube/config  $HOME/.kube/configs/pve |jq -sR '{output: .}'"]
-  depends_on = [proxmox_vm_qemu.k8s-ctrlr]
+## copy kubeconfig to local machine
+#data "external" "cpy_kubeconf" {
+#  program    = ["sh", "-c", "scp -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-ctrlr.default_ipv4_address}:/home/${local.ssh_user}/.kube/config  $HOME/.kube/configs/pve |jq -sR '{output: .}'"]
+#  depends_on = [proxmox_vm_qemu.k8s-ctrlr]
+#}
+#
+
+resource "terraform_data" "join_cluster" {
+  count      = local.k8s_node_count
+  provisioner "local-exec" {
+    command = "ssh -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-node[count.index].default_ipv4_address} sudo ${chomp(data.external.join_cmd.result.output)}" 
+  }
+  triggers_replace = [proxmox_vm_qemu.k8s-ctrlr.id]
 }
+
+resource "terraform_data" "copy_kubeconfig" {
+  triggers_replace = [
+    proxmox_vm_qemu.k8s-ctrlr.id
+  ] 
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-ctrlr.default_ipv4_address}:/home/${local.ssh_user}/.kube/config  $HOME/.kube/configs/pve"
+  }
+}
+
+#resource "terraform_data" "kubeconfig" {
+#  triggers_replace = [
+#    proxmox_vm_qemu.k8s-ctrlr.id
+#  ] 
+#  provisioner "local-exec" {
+#    command = "ssh -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-ctrlr.default_ipv4_address} cat /home/${local.ssh_user}/.kube/config" 
+#  }
+#}
