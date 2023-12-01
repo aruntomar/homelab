@@ -23,3 +23,8 @@ locals {
   target_node    = "pve"
 }
 
+variable "kubeconfig_filepath" {
+ default = "~/.kube/configs/pve"
+ description = "location of the kubeconfig file"
+ type = string
+}

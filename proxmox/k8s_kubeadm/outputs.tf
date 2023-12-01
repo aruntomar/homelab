@@ -18,3 +18,7 @@ output "k8s_node_ip" {
 output "kubeconfig" {
   value = data.external.kubeconfig.result.output
 }
+
+output "kubeconfig_filepath" {
+  value = local.kubeconfig_filepath
+}
