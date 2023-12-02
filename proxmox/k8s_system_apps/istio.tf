@@ -42,3 +42,24 @@ resource "helm_release" "istio_ingress" {
 
   depends_on = [kubernetes_namespace_v1.istio_ingress]
 }
+
+# istio gateway
+resource "kubectl_manifest" "istio-gateway" {
+  yaml_body = <<-YAML
+  apiVersion: networking.istio.io/v1alpha3
+  kind: Gateway
+  metadata:
+    name: istio-gateway
+    namespace: istio-system
+  spec:
+    selector:
+      istio: ingress
+    servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+      - "*"
+    YAML
+}
