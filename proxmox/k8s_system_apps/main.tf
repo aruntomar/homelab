@@ -9,3 +9,7 @@ data "terraform_remote_state" "k8s_cluster" {
 module "istio" {
   source = "../homelab_tf_modules/istio"
 }
+
+module "monitoring" {
+  source = "../homelab_tf_modules/monitoring"
+}
