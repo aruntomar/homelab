@@ -5,3 +5,7 @@ data "terraform_remote_state" "k8s_cluster" {
     path = "${path.module}/../k8s_kubeadm/terraform.tfstate"
   }
 }
+
+module "istio" {
+  source = "../homelab_tf_modules/istio"
+}

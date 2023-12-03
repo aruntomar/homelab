@@ -23,13 +23,10 @@ resource "helm_release" "istiod" {
 resource "kubernetes_namespace_v1" "istio_ingress" {
   metadata {
     name = "istio-ingress"
-    labels = {
-      istio-injection = "enabled"
-    }
   }
 }
 
-resource "helm_release" "istio_ingress" {
+resource "helm_release" "istio-ingress" {
   name       = "istio-ingress"
   repository = "https://istio-release.storage.googleapis.com/charts"
   chart      = "gateway"
@@ -37,7 +34,7 @@ resource "helm_release" "istio_ingress" {
 
   set {
     name  = "service.loadBalancerIP"
-    value = "172.17.9.10"
+    value = var.istio_lb_ip
   }
 
   depends_on = [kubernetes_namespace_v1.istio_ingress]
@@ -45,8 +42,8 @@ resource "helm_release" "istio_ingress" {
 
 # istio gateway
 resource "kubectl_manifest" "istio-gateway" {
-  yaml_body = <<-YAML
-  apiVersion: networking.istio.io/v1alpha3
+  yaml_body  = <<-YAML
+  apiVersion: networking.istio.io/v1beta1
   kind: Gateway
   metadata:
     name: istio-gateway
@@ -60,6 +57,17 @@ resource "kubectl_manifest" "istio-gateway" {
         name: http
         protocol: HTTP
       hosts:
+        - "*"
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: istio-tls-secret
+      hosts:
       - "*"
     YAML
+  depends_on = [kubectl_manifest.tls]
 }
+
