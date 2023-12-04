@@ -7,7 +7,7 @@ resource "helm_release" "metrics-server" {
   create_namespace = false
 
   set {
-    name = "args[0]"
+    name  = "args[0]"
     value = "--kubelet-insecure-tls"
   }
 }
