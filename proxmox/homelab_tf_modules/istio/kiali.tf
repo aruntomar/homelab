@@ -7,4 +7,8 @@ resource "helm_release" "kiali" {
     name  = "auth.strategy"
     value = "anonymous"
   }
+  set {
+    name = "external_services.prometheus.url"
+    value = "http://prometheus-server.monitoring.svc.cluster.local:80"
+  }
 }
