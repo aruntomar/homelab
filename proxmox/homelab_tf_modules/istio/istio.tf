@@ -37,6 +37,11 @@ resource "helm_release" "istio-ingress" {
     value = var.istio_lb_ip
   }
 
+  set {
+    name  = "service.externalTrafficPolicy"
+    value = "Local"
+  }
+
   depends_on = [kubernetes_namespace_v1.istio_ingress]
 }
 

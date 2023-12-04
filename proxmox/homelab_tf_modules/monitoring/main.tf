@@ -40,3 +40,29 @@ resource "helm_release" "grafana" {
 
   depends_on = [helm_release.prometheus, kubernetes_config_map.grafana_dashboards]
 }
+
+resource "kubectl_manifest" "grafana-vs" {
+  yaml_body = <<-YAML
+  apiVersion: networking.istio.io/v1beta1
+  kind: VirtualService
+  metadata:
+    name: grafana-vs
+    namespace: monitoring
+  spec:
+    hosts:
+      - "*"
+    gateways:
+      - istio-system/istio-gateway
+    http:
+      - match:
+          - uri:
+              prefix: /grafana
+          - uri:
+              exact: /login
+        route:
+          - destination:
+              host: grafana.monitoring.svc.cluster.local
+              port:
+                number: 80
+  YAML
+}
