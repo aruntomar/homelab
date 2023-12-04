@@ -10,14 +10,14 @@ resource "helm_release" "argocd" {
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   namespace  = kubernetes_namespace_v1.argocd.id
-    set {
-      name  = "server.service.type"
-      value = "LoadBalancer"
-    }
-    set {
-      name  = "server.service.loadBalancerIP"
-      value = "172.17.9.14"
-    }
+  set {
+    name  = "server.service.type"
+    value = "LoadBalancer"
+  }
+  set {
+    name  = "server.service.loadBalancerIP"
+    value = "172.17.9.14"
+  }
   set {
     name  = "controller.metrics.enabled"
     value = true
@@ -28,6 +28,10 @@ resource "helm_release" "argocd" {
   }
   set {
     name  = "server.metrics.enabled"
+    value = true
+  }
+  set {
+    name  = "server.insecure"
     value = true
   }
 }
@@ -52,6 +56,6 @@ resource "kubectl_manifest" "argo-vs" {
           - destination:
               host: argocd-server.argocd.svc.cluster.local
               port:
-                number: 443
+                number: 80
   YAML
 }
