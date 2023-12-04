@@ -11,5 +11,6 @@ module "istio" {
 }
 
 module "monitoring" {
-  source = "../homelab_tf_modules/monitoring"
+  source     = "../homelab_tf_modules/monitoring"
+  depends_on = [module.istio]
 }
