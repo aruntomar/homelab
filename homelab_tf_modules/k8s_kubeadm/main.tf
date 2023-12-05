@@ -158,3 +158,14 @@ resource "terraform_data" "copy_kubeconfig" {
   }
 }
 
+resource "null_resource" "delete_kubeconfig" {
+  triggers = {
+    filepath = local.kubeconfig_filepath 
+  }
+  
+  provisioner "local-exec" {
+    command = "rm -rf ${self.triggers.filepath}"
+    when = destroy
+  }
+}
+
