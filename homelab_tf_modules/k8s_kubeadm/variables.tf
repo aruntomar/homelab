@@ -3,8 +3,6 @@ locals {
   agent          = var.agent? 1 : 0
   ci_custom      = var.ci_custom
   ci_user        = var.ci_user
-  cpu_cores      = 4
-  cpu_socket     = 1
   clone_source   = var.clone_source
   cpu_type       = var.cpu_type
   disk_type      = var.disk_type
@@ -12,15 +10,33 @@ locals {
   nameserver     = var.nameserver
   network_model  = var.network_model
   network_bridge = var.network_bridge
-  os_type        = "cloud-init"
+  os_type        = var.os_type
   onboot         = true
-  qemu_os        = "l26"
-  scsi_ctrl      = "virtio-scsi-pci"
+  qemu_os        = var.qemu_os
+  scsi_ctrl      = var.scsi_ctrl
   storage        = var.storage
   ssh_user       = local.ci_user
   ssh_pvt_key    = file(pathexpand(var.ssh_pvt_key))
   ssh_pub_key    = file(pathexpand(var.ssh_pub_key))
   target_node    = var.target_node
+
+  # default vm config
+  vm_default = {
+    cpu_cores = 4
+    cpu_socket = 1
+    memory = 6144
+    disk_size = "40G"
+  }
+
+  # k8s controller vm config
+  ctrl_config = merge(local.vm_default, {
+    vmid = var.ctrl_vmid
+  })
+
+  # k8s node vm config
+  node_config = merge(local.vm_default, {
+   memory = 8192  
+  })
 }
 
 variable "agent" {
@@ -90,9 +106,27 @@ variable "network_model" {
   type = string
 }
 
+variable "os_type" {
+  default = "cloud-init"
+  description = "os type"
+  type = string
+}
+
+variable "qemu_os" {
+  default = "l26"
+  description = "qemu os type. default to linux 2.6+"
+  type = string
+}
+
 variable "target_node" {
   default = "pve"
   description = "name of the target node"
+  type = string
+}
+
+variable "scsi_ctrl" {
+  default = "virtio-scsi-pci"
+  description = "scsi ctrl type"
   type = string
 }
 
@@ -112,4 +146,10 @@ variable "storage" {
   default = "local-lvm"
   description = "storage on proxmox server"
   type = string
+}
+
+variable "ctrl_vmid" {
+  default = 500
+  description = "vm id k8s controller vm"
+  type = number
 }

@@ -1,9 +1,3 @@
-locals {
-  ctrlr_config = {
-    memory = 6144
-    vmid   = 500
-  }
-}
 # deploy k8s controller
 resource "proxmox_vm_qemu" "k8s-ctrlr" {
   name        = "k8s-ctrlr"
@@ -11,18 +5,18 @@ resource "proxmox_vm_qemu" "k8s-ctrlr" {
   target_node = local.target_node
   clone       = local.clone_source
   agent       = local.agent
-  cores       = local.cpu_cores
-  sockets     = local.cpu_socket
+  cores       = local.ctrl_config.cpu_cores
+  sockets     = local.ctrl_config.cpu_socket
   cpu         = local.cpu_type
-  memory      = local.ctrlr_config.memory
+  memory      = local.ctrl_config.memory
   scsihw      = local.scsi_ctrl
   onboot      = local.onboot
-  vmid        = local.ctrlr_config.vmid
+  vmid        = local.ctrl_config.vmid
   qemu_os     = local.qemu_os
   disk {
     type    = local.disk_type
     storage = local.storage
-    size    = "40G"
+    size    = local.ctrl_config.disk_size
   }
   network {
     model  = local.network_model
@@ -68,11 +62,6 @@ data "external" "join_cmd" {
   depends_on = [proxmox_vm_qemu.k8s-ctrlr]
 }
 
-locals {
-  config_node = {
-    memory = 8192
-  }
-}
 # deploy k8s nodes.
 resource "proxmox_vm_qemu" "k8s-node" {
   name        = "k8s-node-${count.index + 1}"
@@ -81,18 +70,18 @@ resource "proxmox_vm_qemu" "k8s-node" {
   target_node = local.target_node
   clone       = local.clone_source
   agent       = local.agent
-  cores       = local.cpu_cores
-  sockets     = local.cpu_socket
+  cores       = local.node_config.cpu_cores
+  sockets     = local.node_config.cpu_socket
   cpu         = local.cpu_type
-  memory      = local.config_node.memory
+  memory      = local.node_config.memory
   scsihw      = local.scsi_ctrl
   onboot      = local.onboot
-  vmid        = local.ctrlr_config.vmid + count.index + 1
+  vmid        = local.ctrl_config.vmid + count.index + 1
   qemu_os     = local.qemu_os
   disk {
     type    = local.disk_type
     storage = local.storage
-    size    = "40G"
+    size    = local.node_config.disk_size
   }
   network {
     model  = local.network_model
