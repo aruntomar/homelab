@@ -138,10 +138,7 @@ locals {
 }
 
 # copy kubeconfig to local machine
-resource "terraform_data" "copy_kubeconfig" {
-  triggers_replace = [
-    proxmox_vm_qemu.k8s-ctrlr.id
-  ]
+resource "null_resource" "copy_kubeconfig" {
   provisioner "local-exec" {
     command = "scp -o StrictHostKeyChecking=no ${local.ssh_user}@${proxmox_vm_qemu.k8s-ctrlr.default_ipv4_address}:/home/${local.ssh_user}/.kube/config  ${local.kubeconfig_filepath}"
   }

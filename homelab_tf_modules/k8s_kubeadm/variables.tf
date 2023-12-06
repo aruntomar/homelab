@@ -108,9 +108,9 @@ variable "network_model" {
 }
 
 variable "onboot" {
-  default = true
+  default     = true
   description = "should vm boot on host boot"
-  type = bool
+  type        = bool
 }
 
 variable "os_type" {
@@ -120,7 +120,7 @@ variable "os_type" {
 }
 
 variable "pod_network_cidr" {
-  default     = "10.244.0.0./16"
+  default     = "10.244.0.0/16"
   description = "pod network cidr"
 }
 
