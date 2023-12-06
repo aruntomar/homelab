@@ -46,7 +46,7 @@ resource "proxmox_vm_qemu" "k8s-ctrlr" {
     inline = [
       "sudo hostnamectl set-hostname ${self.name}",
       "hostnamectl",
-      "sudo kubeadm init --control-plane-endpoint=${self.default_ipv4_address} --node-name k8s-ctrlr --pod-network-cidr=10.244.0.0/16",
+      "sudo kubeadm init --control-plane-endpoint=${self.default_ipv4_address} --node-name k8s-ctrlr --pod-network-cidr=${local.pod_network_cidr}",
       "mkdir -p $HOME/.kube",
       "sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
       "sudo chown $(id -u):$(id -g) $HOME/.kube/config",
@@ -149,12 +149,12 @@ resource "terraform_data" "copy_kubeconfig" {
 
 resource "null_resource" "delete_kubeconfig" {
   triggers = {
-    filepath = local.kubeconfig_filepath 
+    filepath = local.kubeconfig_filepath
   }
-  
+
   provisioner "local-exec" {
     command = "rm -rf ${self.triggers.filepath}"
-    when = destroy
+    when    = destroy
   }
 }
 
