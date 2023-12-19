@@ -1,5 +1,6 @@
 module "k8s_kubeadm" {
   k8s_controller_ip = "172.17.9.3"
+  k8s_node_count    = 5
   subnet_mask       = 24
   network_gateway   = "172.17.9.1"
   source            = "../../terraform-proxmox-kubeadm"

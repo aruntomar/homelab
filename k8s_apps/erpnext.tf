@@ -24,18 +24,26 @@ resource "kubernetes_manifest" "erpnext" {
         repoURL        = "https://helm.erpnext.com/"
         chart          = "erpnext"
         targetRevision = "7.0.7"
-        #        helm = {
-        #          "parameters" = [
-        #            {
-        #              "name"  = "service.http.loadBalancerIP"
-        #              "value" = "172.17.9.15"
-        #            },
-        #            {
-        #              "name"  = "service.http.type"
-        #              "value" = "LoadBalancer"
-        #            },
-        #          ]
-        #        }
+        helm = {
+          "parameters" = [
+            {
+              "name"  = "persistence.worker.storageClass"
+              "value" = "longhorn"
+            },
+            {
+              "name"  = "jobs.createSite.enabled"
+              "value" = "true"
+            },
+            {
+              "name"  = "jobs.createSite.siteName"
+              "value" = "erp.linuxguy.lan"
+            },
+            {
+              "name"  = "jobs.createSite.adminPassword"
+              "value" = "connected"
+            }
+          ]
+        }
       }
       destination = {
         server    = "https://kubernetes.default.svc"
@@ -49,4 +57,30 @@ resource "kubernetes_manifest" "erpnext" {
       }
     }
   }
+}
+
+resource "kubectl_manifest" "erpnext-vs" {
+  yaml_body = <<-YAML
+  apiVersion: networking.istio.io/v1beta1
+  kind: VirtualService
+  metadata:
+    name: erpnext-vs
+    namespace: erpnext
+  spec:
+    hosts:
+      - "erp.linuxguy.lan"
+    gateways:
+      - istio-system/istio-gateway
+    http:
+      - match:
+          - uri:
+              exact: /
+          - uri:
+              prefix: /assets
+        route:
+          - destination:
+              host: frappe-bench-erpnext.erpnext.svc.cluster.local
+              port:
+                number: 8080
+  YAML
 }
