@@ -74,7 +74,7 @@ resource "kubectl_manifest" "erpnext-vs" {
     http:
       - match:
           - uri:
-              exact: /
+              prefix: /
           - uri:
               prefix: /assets
         route:
