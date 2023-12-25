@@ -57,3 +57,8 @@ module "jenkins" {
   source     = "../homelab_tf_modules/jenkins"
   depends_on = [module.k8s_kubeadm]
 }
+
+module "crossplane" {
+  source     = "../homelab_tf_modules/crossplane"
+  depends_on = [module.k8s_kubeadm]
+}
